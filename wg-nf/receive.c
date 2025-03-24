@@ -293,7 +293,7 @@ bool decrypt_packet(struct sk_buff *skb, struct noise_keypair *keypair)
 }
 
 /* This is RFC6479, a replay detection bitmap algorithm that avoids bitshifts */
-static bool counter_validate(struct noise_replay_counter *counter, u64 their_counter)
+bool counter_validate(struct noise_replay_counter *counter, u64 their_counter)
 {
 	unsigned long index, index_current, top, i;
 	bool ret = false;
@@ -333,7 +333,7 @@ out:
 
 #include "selftest/counter.c"
 
-static void wg_packet_consume_data_done(struct wg_peer *peer,
+void wg_packet_consume_data_done(struct wg_peer *peer,
 					struct sk_buff *skb,
 					struct endpoint *endpoint)
 {
@@ -346,7 +346,7 @@ static void wg_packet_consume_data_done(struct wg_peer *peer,
 	if (unlikely(wg_noise_received_with_keypair(&peer->keypairs,
 						    PACKET_CB(skb)->keypair))) {
 		wg_timers_handshake_complete(peer);
-		wg_packet_send_staged_packets(peer);
+		// wg_packet_send_staged_packets(peer);
 	}
 
 	keep_key_fresh(peer);
@@ -409,7 +409,8 @@ static void wg_packet_consume_data_done(struct wg_peer *peer,
 	if (unlikely(routed_peer != peer))
 		goto dishonest_packet_peer;
 
-	napi_gro_receive(&peer->napi, skb);
+	// napi_gro_receive(&peer->napi, skb);
+	netif_receive_skb(skb);
 	update_rx_stats(peer, message_data_len(len_before_trim));
 	return;
 
@@ -433,7 +434,7 @@ dishonest_packet_size:
 	++dev->stats.rx_length_errors;
 	goto packet_processed;
 packet_processed:
-	dev_kfree_skb(skb);
+	// dev_kfree_skb(skb);
 }
 
 int wg_packet_rx_poll(struct napi_struct *napi, int budget)
@@ -637,7 +638,8 @@ void wg_packet_receive(struct wg_device *wg, struct sk_buff *skb)
 		// 	pr_info("packet received successfully!\n");
 		// else
 		// 	pr_info("Packet got dropped!\n");
-		wg_packet_consume_data(wg, skb);
+		// wg_packet_consume_data(wg, skb);
+		// netif_receive_skb(skb);
 		//TODO: Leave netfilter manage this
 		break;
 	default:

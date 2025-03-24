@@ -38,7 +38,12 @@ void wg_packet_decrypt_worker(struct work_struct *work);
 /* Interesting helpers */
 int prepare_skb_header(struct sk_buff *skb, struct wg_device *wg);
 void wg_nf_packet_consume_data(struct wg_device *wg, struct sk_buff *skb);
+bool encrypt_packet(struct sk_buff *skb, struct noise_keypair *keypair);
 bool decrypt_packet(struct sk_buff *skb, struct noise_keypair *keypair);
+bool counter_validate(struct noise_replay_counter *counter, u64 their_counter);
+void wg_packet_consume_data_done(struct wg_peer *peer,
+	struct sk_buff *skb,
+	struct endpoint *endpoint);
 
 /* send.c APIs: */
 void wg_packet_send_queued_handshake_initiation(struct wg_peer *peer,
@@ -94,7 +99,7 @@ static inline void wg_reset_packet(struct sk_buff *skb, bool encapsulating)
 	skb->nohdr = 0;
 	skb->peeked = 0;
 	skb->mac_len = 0;
-	skb->dev = NULL;
+	// skb->dev = NULL;
 #ifdef CONFIG_NET_SCHED
 	skb->tc_index = 0;
 #endif

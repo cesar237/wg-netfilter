@@ -177,8 +177,8 @@ int wg_socket_send_skb_to_peer(struct wg_peer *peer, struct sk_buff *skb, u8 ds)
 	else if (peer->endpoint.addr.sa_family == AF_INET6)
 		ret = send6(peer->device, skb, &peer->endpoint, ds,
 			    &peer->endpoint_cache);
-	else
-		dev_kfree_skb(skb);
+	// else
+		// dev_kfree_skb(skb);
 	if (likely(!ret))
 		peer->tx_bytes += skb_len;
 	read_unlock_bh(&peer->endpoint_lock);
